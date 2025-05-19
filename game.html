@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | UnityLoader</title>
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+
+        #loading-indicator {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            color: white;
+            font-size: 24px;
+        }
+
+        video {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-image: url('img/关闭按钮.png');
+            background-size: 100% 100%;
+            background-color: transparent;
+            border: none;
+            width: 86.94px;
+            height: 40.5px;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        #video-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw; /* 使用视口宽度 */
+            height: 100vh; /* 使用视口高度 */
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            background-color: black;
+            transform: scale(0);
+            transition: transform 1s ease-in-out;
+        }
+
+        #video-container.show {
+            transform: scale(1);
+        }
+
+        #video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%; /* 占满父容器 */
+            height: 100%; /* 占满父容器 */
+            object-fit: cover; /* 按比例缩放并覆盖 */
+            z-index: 20;
+            transition: all 1s ease-in-out;
+            display: block;
+        }
+
+        #play-pause-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-image: url('img/了解更多.png');
+            background-size: 100% 100%;
+            background-color: transparent;
+            border: none;
+            width: 161px;
+            height: 67.5px;
+            cursor: pointer;
+            z-index: 21;
+        }
+
+        #playbuttonwelcome {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-image: url('img/播放_透明.png');
+            background-size: 100% 100%;
+            background-color: transparent;
+            border: none;
+            width: 322px;
+            height: 135px;
+            cursor: pointer;
+            z-index: 21;
+        }
+
+        #center-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 22;
+            background-color: transparent;
+        }
+
+        #experience-img {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            background-color: transparent;
+        }
+
+        #buttons-container {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 50px;
+        }
+
+        #buttons-close {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 50px;
+        }
+
+		#buttons-mainpanel {
+			position: absolute;
+			
+			/* 锚点控制（默认基于左上角） */
+			top: auto;      /* 取消默认值 */
+			bottom: 11%;     /* 距离底部8% */
+			left: 50%;      /* 水平居中 */
+			transform: translateX(-50%); /* 精确居中 */
+			
+			/* 其他样式 */
+			/*background-color: transparent;*/
+			display: flex;
+			gap: 50px;
+		}
+
+		#mainpanel-button {
+			background-color: transparent;
+			border: none;
+			padding: 0;
+			margin: 0;
+			width: 181.3px;
+			height: 49.7px;
+			cursor: pointer;
+		}
+
+		#mainpanel-button img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+		
+        #data-button,
+        #intro-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+		
+		#closeintro-button
+        {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+		
+		#closeintro-button img
+		{
+            width: 132px;
+            height: 45.3px;
+        }
+		
+        #data-button img,
+        #intro-button img {
+            width: 129px;
+            height: 54.2px;
+        }
+		
+		        #data-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            background-color: black;
+            transform: scale(0);
+            transition: transform 1s ease-in-out;
+        }
+
+        #data-container.show {
+            transform: scale(1);
+        }
+
+        #data-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+			margin:0 auto
+            object-fit: cover;
+            z-index: 20;
+            transition: all 1s ease-in-out;
+            display: block;
+        }
+
+        #data-close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-image: url('img/关闭按钮.png');
+            background-size: 100% 100%;
+            background-color: transparent;
+            border: none;
+            width: 86.94px;
+            height: 40.5px;
+            cursor: pointer;
+            z-index: 21;
+        }
+    </style>
+</head>
+<body style="text-align: center; padding: 0; border: 0; margin: 0;">
+    <canvas id="unity-canvas" width=960 height=600 style="width: 960px; height: 600px; background: url('img/Test.jpg') center / cover"></canvas>
+    <script src="Build/Test.loader.js"></script>
+    <div id="DataOrVideo-Choose">
+        <div id="center-content">
+            <img id="experience-img" src="" alt="体验底板">
+            <div id="buttons-container">
+                <button id="data-button">
+                    <img src="img/数据面板.png" alt="数据面板">
+                </button>
+                <button id="intro-button">
+                    <img src="img/视频介绍.png" alt="视频介绍">
+                </button>
+            </div>
+            <div id="buttons-close">
+                <button id="closeintro-button">
+                    <img src="img/隐藏按钮.png" alt="隐藏面板">
+                </button>
+            </div>
+			<div id="buttons-mainpanel">
+                <button id="mainpanel-button">
+                    <img src="img/了解更多.png" alt="了解更多">
+            </button>
+            </div>
+        </div>
+    </div>
+    <div id="video-container">
+        <img id="video-placeholder" src="img/欢迎界面.png" alt="视频占位图片">
+        <video id="myVideo" playsinline>
+            <source id="videoSource" src="" type="video/mp4">
+            您的浏览器不支持 video 标签。
+        </video>
+        <button id="play-pause-button"></button>
+        <button id="playbuttonwelcome"></button>
+        <button class="close-button" id="closeButton"></button>
+    </div>
+	<!-- 数据面板容器 -->
+    <div id="data-container">
+        <img id="data-placeholder" src="" alt="数据面板图片">
+        <button id="data-close-button"></button>
+    </div>
+    <!-- 添加音频元素 -->
+    <audio id="clickSound" src="点击按钮.mp3"></audio>
+    <!-- 加载指示器 -->
+    <div id="loading-indicator">加载中...</div>
+    <script>
+	        // 预加载图片
+        function preloadImages() {
+            const imageUrls = [
+                'img/video/智慧安防底图.jpg',
+                'img/video/智慧餐饮底图.jpg',
+                'img/video/智慧会议底图.jpg',
+                'img/video/智慧通行底图.jpg',
+                'img/video/智慧中控底图.jpg',
+                'img/video/智慧访客底图.jpg',
+				'img/video/总介绍参考.png',
+				'img/data/智慧安防数据面板.jpg',
+                'img/data/智慧餐饮数据面板.jpg',
+                'img/data/智慧会议数据面板.jpg',
+                'img/data/智慧通行数据面板.jpg',
+                'img/data/智慧中控数据面板.jpg',
+                'img/data/智慧访客数据面板.jpg'
+            ];
+
+            imageUrls.forEach(url => {
+                const img = new Image();
+                img.src = url;				
+            });
+        }
+
+        // 在页面加载时调用
+        window.onload = function () {
+            preloadImages();
+        };
+	
+        const videoContainer = document.getElementById('video-container');
+        const closeButton = document.getElementById('closeButton');
+        const video = document.getElementById('myVideo');
+        const videoSource = document.getElementById('videoSource');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const playPauseButton_welcome = document.getElementById('playbuttonwelcome');
+        const videoPlaceholder = document.getElementById('video-placeholder');
+        const introButton = document.getElementById('intro-button');
+        const dataButton = document.getElementById('data-button');
+        const dataOrVideoChoose = document.getElementById('DataOrVideo-Choose');
+		const closeintrobutton = document.getElementById('closeintro-button');
+		const mainpanelbutton = document.getElementById('mainpanel-button');
+		// 播放点击音效
+        const clickSound = document.getElementById('clickSound');
+		const experienceimg = document.getElementById('experience-img');
+		const loadingIndicator = document.getElementById('loading-indicator');
+
+        const dataContainer = document.getElementById('data-container');
+        const dataPlaceholder = document.getElementById('data-placeholder');
+        const dataCloseButton = document.getElementById('data-close-button');
+
+        let videoType = '';
+        video.controls = false;
+        videoContainer.style.display = 'none';
+        dataOrVideoChoose.style.display = 'none';
+        dataContainer.style.display = 'none';
+		let _mode ="自由参观";
+		
+        function SetVideoBg(name,mode) {
+            let videoUrl;
+			videoType = name;
+			let experienceImgUrl = '';
+			let dataImgUrl = '';
+			//console.log('+++++++++++' +  mode);
+			_mode = mode;
+             switch (name) {
+                case '主界面':
+                    videoPlaceholder.src = 'img/欢迎界面.png';
+					experienceImgUrl = 'img/video/总介绍参考.png';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E4%B8%BB%E7%95%8C%E9%9D%A2.mp4';
+                    break;
+                case '智慧安防':
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E6%99%BA%E6%85%A7%E5%AE%89%E9%98%B2.mp4';
+                    videoPlaceholder.src = 'img/智慧安防.png';
+                    experienceImgUrl = 'img/video/智慧安防底图.jpg';
+                    dataImgUrl = 'img/data/智慧安防数据面板.jpg';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    break;
+                case '智慧餐饮':
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E6%99%BA%E6%85%A7%E9%A4%90%E9%A5%AE.mp4';
+                    videoPlaceholder.src = 'img/智慧餐饮.png';
+                    experienceImgUrl = 'img/video/智慧餐饮底图.jpg';
+                    dataImgUrl = 'img/data/智慧餐饮数据面板.jpg';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    break;
+                case '智慧会议':
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E6%99%BA%E6%85%A7%E4%BC%9A%E8%AE%AE.mp4';
+                    videoPlaceholder.src = 'img/智慧会议.png';
+                    experienceImgUrl = 'img/video/智慧会议底图.jpg';
+                    dataImgUrl = 'img/data/智慧会议数据面板.jpg';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    break;
+                case '智慧通行':
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E6%99%BA%E6%85%A7%E9%80%9A%E8%A1%8C.mp4';
+                    videoPlaceholder.src = 'img/智慧通行.png';
+                    experienceImgUrl = 'img/video/智慧通行底图.jpg';
+                    dataImgUrl = 'img/data/智慧通行数据面板.jpg';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    break;
+                case '智慧中控':
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E6%99%BA%E6%85%A7%E4%B8%AD%E6%8E%A7.mp4';
+                    videoPlaceholder.src = 'img/智慧中控.png';
+                    experienceImgUrl = 'img/video/智慧中控底图.jpg';
+                    dataImgUrl = 'img/data/智慧中控数据面板.jpg';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    break;
+                case '智慧访客':
+                    videoUrl = 'https://dianxinvideo.maozi.io/%E6%99%BA%E6%85%A7%E8%AE%BF%E5%AE%A2.mp4';
+                    videoPlaceholder.src = 'img/智慧访客.png';
+                    experienceImgUrl = 'img/video/智慧访客底图.jpg';
+                    dataImgUrl = 'img/data/智慧访客数据面板.jpg';
+                    playPauseButton.style.display = 'none';
+                    playPauseButton_welcome.style.display = 'none';
+                    break;
+                default:
+                    console.error('Unknown video name: 222222');
+                    return;
+            }
+			
+			
+            videoSource.src = videoUrl;
+            video.load();
+			
+			if(name	== '主界面')
+			{
+			
+				// 显示加载指示器
+                loadingIndicator.style.display = 'block';
+
+                // 加载 experienceimg 图片
+                const img = new Image();
+                img.src = experienceImgUrl;
+                img.onload = function () {
+                    experienceimg.src = experienceImgUrl; // 图片加载完成后再设置 src
+                    experienceimg.style.display = 'block'; // 显示图片
+                    loadingIndicator.style.display = 'none'; // 隐藏加载指示器
+
+                    videoContainer.style.display = 'none';
+                    dataOrVideoChoose.style.display = 'block';
+					
+					introButton.style.display = 'none';
+					dataButton.style.display = 'none';
+					closeintrobutton.style.display = 'none';
+					mainpanelbutton.style.display = 'block';
+                };
+
+                // 预加载数据面板图片
+                const dataImg = new Image();
+                dataImg.src = dataImgUrl;
+
+			}else
+			{
+				// 显示加载指示器
+                loadingIndicator.style.display = 'block';
+
+                // 加载 experienceimg 图片
+                const img = new Image();
+                img.src = experienceImgUrl;
+                img.onload = function () {
+                    experienceimg.src = experienceImgUrl; // 图片加载完成后再设置 src
+                    experienceimg.style.display = 'block'; // 显示图片
+                    loadingIndicator.style.display = 'none'; // 隐藏加载指示器
+
+                    videoContainer.style.display = 'none';
+                    dataOrVideoChoose.style.display = 'block';
+					
+					if(_mode == "智能参观")
+						closeintrobutton.style.display = 'none';
+					else
+						closeintrobutton.style.display = 'block';
+					introButton.style.display = 'block';
+					dataButton.style.display = 'block';
+					mainpanelbutton.style.display = 'none';
+                };
+
+                // 预加载数据面板图片
+                const dataImg = new Image();
+                dataImg.src = dataImgUrl;
+			}
+
+        }
+
+        playPauseButton.addEventListener('click', function () {
+            if (video.paused) {
+                video.play();
+                videoPlaceholder.style.display = 'none';
+                playPauseButton.style.display = 'none';
+            } else {
+                video.pause();
+                playPauseButton.style.display = 'block';
+            }
+        });
+
+        playPauseButton_welcome.addEventListener('click', function () {
+            if (video.paused) {
+                video.play();
+                videoPlaceholder.style.display = 'none';
+                playPauseButton.style.display = 'none';
+                playPauseButton_welcome.style.display = 'none';
+            } else {
+                video.pause();
+                playPauseButton_welcome.style.display = 'block';
+                playPauseButton.style.display = 'none';
+            }
+        });
+
+        video.addEventListener('play', function () {
+            //videoPlaceholder.style.display = 'none';
+			if(videoType	== '主界面')
+			{
+				playPauseButton.style.display = 'none';
+			}
+        });
+
+        video.addEventListener('pause', function () {
+            playPauseButton.style.display = 'block';
+        });
+
+        mainpanelbutton.addEventListener('click', function () {	
+			introButton.click();
+        });
+
+        introButton.addEventListener('click', function () {	
+			clickSound.play();		
+			// 重置 video-placeholder 的 scale 为 0
+            videoPlaceholder.style.transform = 'scale(0)';
+			videoContainer.classList.remove('show');			
+            console.log('视频介绍按钮被点击');
+            videoPlaceholder.style.display = 'block';
+
+            // 显示 video-container 并触发动画
+            videoContainer.style.display = 'flex';
+            setTimeout(() => {
+                videoContainer.classList.add('show');
+            }, 10); // 延迟 10ms 确保 display: flex 生效
+
+            dataOrVideoChoose.style.display = 'none';
+        });
+
+        closeintrobutton.addEventListener('click', function () {
+           
+            clickSound.play();
+
+            // 隐藏 video-container 和 dataOrVideoChoose
+            videoContainer.style.display = 'none';
+            dataOrVideoChoose.style.display = 'none';
+
+            // 调用 Unity 方法
+            if (typeof window.unityInstance !== 'undefined' && typeof window.unityInstance.SendMessage === 'function') {
+                window.unityInstance.SendMessage('JSVideoToUnity', 'closeintro');
+				window.unityInstance.SendMessage('JSVideoToUnity', 'JSVideoEnd');
+            } else {
+                alert('unityInstance is not available or SendMessage is not supported.');
+            }
+        });
+
+        // 监听 video-container 的动画结束事件
+        videoContainer.addEventListener('transitionend', function (event) {
+            if (event.propertyName === 'transform') {
+                console.log('video-container 动画播放完成');
+                video.play(); // 动画完成后播放视频               
+            }
+        });
+
+        dataButton.addEventListener('click', function () {
+            console.log('数据面板按钮被点击');
+			clickSound.play();
+        });
+
+        closeButton.addEventListener('click', function () {
+			clickSound.play();
+            video.pause();
+            videoContainer.style.display = 'none';
+			videoPlaceholder.style.display = 'none';
+            callUnityVideoEnd();
+        });
+
+        video.addEventListener('ended', function () {
+            videoContainer.style.display = 'none';
+            callUnityVideoEnd();
+        });
+		
+		        // 点击 dataButton 显示数据面板
+        dataButton.addEventListener('click', function () {
+            clickSound.play();
+
+            // 根据当前 videoType 设置数据面板图片
+            const dataImgUrl = `img/data/${videoType}数据面板.jpg`;
+            dataPlaceholder.src = dataImgUrl;
+
+            // 显示 data-container 并触发动画
+            dataContainer.style.display = 'flex';
+            setTimeout(() => {
+                dataContainer.classList.add('show');
+            }, 10); // 延迟 10ms 确保 display: flex 生效
+        });
+
+        // 点击 data-close-button 隐藏数据面板
+        dataCloseButton.addEventListener('click', function () {
+            clickSound.play();
+
+            // 隐藏 data-container
+            dataContainer.classList.remove('show');
+            setTimeout(() => {
+                dataContainer.style.display = 'none';
+            }, 1000); // 等待动画完成
+
+            // 调用 closeintrobutton 的点击函数
+            closeintrobutton.click();
+        });
+		
+
+        function callUnityVideoEnd() {
+            if (typeof window.unityInstance !== 'undefined' && typeof window.unityInstance.SendMessage === 'function') {
+                window.unityInstance.SendMessage('JSVideoToUnity', 'JSVideoEnd');
+            } else {
+                alert('unityInstance is not available or SendMessage is not supported.');
+            }
+        }
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+
+        var canvas = document.querySelector("#unity-canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.position = "fixed";
+
+        document.body.style.textAlign = "left";
+      }
+
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/Test.data",
+        frameworkUrl: "Build/Test.framework.js",
+        codeUrl: "Build/Test.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "UnityLoader",
+        productVersion: "0.1.0",
+        }).then((unityInstance) => {
+            window.unityInstance = unityInstance;
+        }).catch((message) => {
+            alert(message);
+      });
+    </script>
+  </body>
+</html>
+

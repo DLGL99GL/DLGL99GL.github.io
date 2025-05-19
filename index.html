@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<meta http-equiv="Access-Control-Allow-Origin" content="*">
+		<meta http-equiv="x-rim-auto-match" content="none">
+		<meta name="format-detection" content="telephone=yes">
+		<meta name="screen-orientation" content="true">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="full-screen" content="yes">
+		<meta name="x5-fullscreen" content="true">
+		<meta name="360-fullscreen" content="true">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="x5-page-mode" content="app">
+		<meta name="browsermode" content="application">
+
+		  <!-- Open Graph 协议 -->
+		  <meta property="og:title" content="中国电信5G智慧园区" />
+		  <meta property="og:description" content="探索中国电信5G智慧园区，体验未来科技与创新服务。" />
+		  <meta property="og:image" content="http://www.yiyingdt.com/cover/share_cover.jpg?v=2" />  <!-- 加版本号防缓存 -->
+		  <meta property="og:url" content="http://www.yiyingdt.com/" />
+		  <meta property="og:type" content="website" />
+
+		  <!-- 微信专用 Meta -->
+		  <meta property="wechat:title" content="中国电信5G智慧园区" />
+		  <meta property="wechat:description" content="探索中国电信5G智慧园区，体验未来科技与创新服务。" />
+		  <meta property="wechat:image" content="http://www.yiyingdt.com/cover/share_cover.jpg?v=2" />
+
+		<title>中国电信5G智慧园区</title>
+		<style>
+			html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thehead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video,button{margin:0;padding:0;font-style: normal;}
+			html{font-size: 12px;}
+			html body{
+				-webkit-text-size-adjust: none !important;
+				-moz-text-size-adjust: none !important;
+				-ms-text-size-adjust: none !important;
+				text-size-adjust: none !important;
+			}
+			a{text-decoration: none;}
+			a:hover,a:active,a:visited,a:link,a:focus{
+				-webkit-tap-highlight-color:rgba(0,0,0,0);
+				-webkit-tap-highlight-color: transparent;
+				outline:none;
+			}
+			body,html{height: 100%; overflow:hidden;position: relative;top: 0px;left:0px;}
+			.landscape-screen{
+				transform-origin: top left;
+				transform: rotate(90deg) translateY(-100%)
+			}
+			#Frame {
+				border-style: unset;
+				display: block
+			}
+		</style>
+	</head>
+	<body>
+		<iframe id="Frame" style="Frame"  src="game.html"></iframe>
+		<script>
+			// 动态设置当前页面URL（用于og:url）
+			document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+
+			var orientation = window.orientation;
+			var Frame = document.getElementById("Frame");
+			if(orientation == 180 || orientation == 0 || orientation == -180){
+				Frame.height = window.innerWidth;
+				Frame.width = window.innerHeight;
+				Frame.classList.add("landscape-screen");
+			}else {
+				Frame.height = window.innerHeight;
+				Frame.width = window.innerWidth;
+				Frame.classList.remove("landscape-screen");
+			}
+			
+			window.onorientationchange = function () {
+          		if(orientation == 180 || orientation == 0 || orientation == -180){
+					Frame.classList.add("landscape-screen");
+				}else{
+					Frame.classList.remove("landscape-screen");
+				}
+        	};
+		</script>
+	</body>
+</html>
